@@ -46,6 +46,7 @@
           daemon (:acking-daemon component)
           ip "0.0.0.0"
           server (server/run-server (partial app daemon ch release-ch) {:ip ip :port 0 :thread 1 :queue-size 100000})]
+      (taoensso.timbre/info "Started HTTP Kit WebSockets on " ip ":" (:local-port (meta server)))
       (assoc component :server server :ip ip :port (:local-port (meta server)) :release-ch release-ch)))
 
   (stop [component]
@@ -60,14 +61,17 @@
 
 (defmethod extensions/send-peer-site HttpKitWebSockets
   [messenger]
+  (taoensso.timbre/info "Sending to " (format "ws://%s:%s%s" (:ip messenger) (:port messenger) send-route))
   {:url (format "ws://%s:%s%s" (:ip messenger) (:port messenger) send-route)})
 
 (defmethod extensions/acker-peer-site HttpKitWebSockets
   [messenger]
+  (taoensso.timbre/info "Acker to " (format "ws://%s:%s%s" (:ip messenger) (:port messenger) acker-route))
   {:url (format "ws://%s:%s%s" (:ip messenger) (:port messenger) acker-route)})
 
 (defmethod extensions/completion-peer-site HttpKitWebSockets
   [messenger]
+  (taoensso.timbre/info "Completion to " (format "ws://%s:%s%s" (:ip messenger) (:port messenger) completion-route))
   {:url (format "ws://%s:%s%s" (:ip messenger) (:port messenger) completion-route)})
 
 (defmethod extensions/connect-to-peer HttpKitWebSockets
