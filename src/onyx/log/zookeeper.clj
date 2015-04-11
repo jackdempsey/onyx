@@ -12,32 +12,14 @@
 (defn prefix-path [prefix]
   (str root-path "/" prefix))
 
-(defn pulse-path [prefix]
-  (str (prefix-path prefix) "/pulse"))
+(defn build-route-paths
+  "Accepts a seq of names that both define a prefixed endpoint and a function named (name)-path that returns that value"
+  [paths]
+  (doseq [path paths]
+    (intern *ns* (symbol (str path "-path"))
+            (fn [prefix] (str (prefix-path prefix) "/" path)))))
 
-(defn log-path [prefix]
-  (str (prefix-path prefix) "/log"))
-
-(defn catalog-path [prefix]
-  (str (prefix-path prefix) "/catalog"))
-
-(defn workflow-path [prefix]
-  (str (prefix-path prefix) "/workflow"))
-
-(defn flow-path [prefix]
-  (str (prefix-path prefix) "/flow"))
-
-(defn task-path [prefix]
-  (str (prefix-path prefix) "/task"))
-
-(defn sentinel-path [prefix]
-  (str (prefix-path prefix) "/sentinel"))
-
-(defn origin-path [prefix]
-  (str (prefix-path prefix) "/origin"))
-
-(defn job-scheduler-path [prefix]
-  (str (prefix-path prefix) "/job-scheduler"))
+(build-route-paths '(pulse log catalog workflow flow task sentinel origin job-scheduler))
 
 (defn serialize [x]
   (.array (fressian/write x)))
